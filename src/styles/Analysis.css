@@ -1,0 +1,54 @@
+body {
+    font-family: 'Arial', sans-serif;
+    background-color: #f4f4f9;
+    color: #333;
+    margin: 0;
+    padding: 0;
+}
+
+.analysis-container {
+    padding: 20px;
+    max-width: 800px;
+    margin: auto;
+    text-align: left;
+    background-color: #fff;
+    box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1);
+    border-radius: 8px;
+}
+
+.analysis-container h2, .analysis-container h3 {
+    text-align: center;
+    color: #2c3e50;
+}
+
+.model-section {
+    margin-bottom: 20px;
+    padding: 15px;
+    background-color: #ecf0f1;
+    border-radius: 8px;
+    transition: transform 0.3s ease;
+}
+
+.model-section:hover {
+    transform: scale(1.02);
+}
+
+.model-section h4 {
+    margin-bottom: 10px;
+    color: #2980b9;
+}
+
+.model-section ul {
+    font-size: 1.2em;
+    line-height: 1.5;
+    padding-left: 20px;
+}
+
+.model-section li {
+    margin-bottom: 5px;
+    list-style-type: disc;
+}
+
+.model-section li::marker {
+    color: #2980b9;
+}
