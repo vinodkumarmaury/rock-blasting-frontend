@@ -8,7 +8,7 @@ function RockData() {
 
     const fetchData = async () => {
         try {
-            const response = await axios.get(`http://localhost:8000/data/${rockId}`);
+            const response = await axios.get(`https://rock-blasting-backend.onrender.com/data/${rockId}`);
             setData(response.data);
         } catch (error) {
             console.error('Error fetching data:', error);
