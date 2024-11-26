@@ -42,7 +42,7 @@ function App() {
     const handleSubmit = async (e) => {
         e.preventDefault();
         try {
-            const response = await axios.post("http://127.0.0.1:8000/predict", formData);
+            const response = await axios.post("https://rock-blasting-backend.onrender.com/predict", formData);
             setResult(response.data.predictions);
         } catch (error) {
             console.error("Error fetching prediction:", error);
