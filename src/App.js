@@ -1,6 +1,5 @@
-// App.js
 import React, { useState } from 'react';
-import { BrowserRouter as Router, Route, Routes, Link } from 'react-router-dom';
+import { BrowserRouter as Router, Route, Routes, Link, useLocation } from 'react-router-dom';
 import axios from 'axios';
 import './styles/App.css';
 import './styles/Navbar.css';
@@ -10,7 +9,6 @@ import Home from './components/Home';
 import RockData from './components/RockData.js';
 
 function App() {
-    // Initial form data and result state
     const [formData, setFormData] = useState({
         id: "",
         rock_type: "",
@@ -29,16 +27,16 @@ function App() {
         bench_height: "",
         burden: "",
         spacing: "",
-        explosive_weight: ""
+        explosive_weight: "",
+        depth_of_hole: "", // New field
+        stemming_material: "" // New field
     });
     const [result, setResult] = useState(null);
 
-    // Handle form input change
     const handleChange = (e) => {
         setFormData({ ...formData, [e.target.name]: e.target.value });
     };
 
-    // Handle form submit for prediction
     const handleSubmit = async (e) => {
         e.preventDefault();
         try {
@@ -51,6 +49,16 @@ function App() {
 
     return (
         <Router>
+            <AppContent handleChange={handleChange} handleSubmit={handleSubmit} formData={formData} result={result} />
+        </Router>
+    );
+}
+
+function AppContent({ handleChange, handleSubmit, formData, result }) {
+    const location = useLocation();
+
+    return (
+        <div>
             <nav className="navbar">
                 <Link to="/">Home</Link>
                 <Link to="/input-guide">Input Guide</Link>
@@ -58,12 +66,12 @@ function App() {
                 <Link to="/prediction">Prediction</Link>
                 <Link to="/rock-data">Rock Data</Link>
             </nav>
-            <div className="container">
-                <Routes>
-                    <Route
-                        path="/prediction"
-                        element={
+            <div className="mainDiv">
+                <div className="container">
+                    <Routes>
+                        <Route path="/prediction" element={
                             <>
+                            <div className="predict">
                                 <h2>Rock Blasting Prediction</h2>
                                 <form onSubmit={handleSubmit} className="form">
                                     {Object.keys(formData).map((key) => (
@@ -100,16 +108,22 @@ function App() {
                                         </table>
                                     </div>
                                 )}
+                            </div>
                             </>
-                        }
-                    />
-                    <Route path="/input-guide" element={<InputGuide />} />
-                    <Route path="/analysis" element={<Analysis />} />
-                    <Route path="/rock-data" element={<RockData />} />
-                    <Route path="/" element={<Home />} />
-                </Routes>
+                        } />
+                        <Route path="/input-guide" element={<InputGuide />} />
+                        <Route path="/analysis" element={<Analysis />} />
+                        <Route path="/rock-data" element={<RockData />} />
+                        <Route path="/" element={<Home />} />
+                    </Routes>
+                </div>
+                {location.pathname === "/prediction" && (
+                    <div className='blastImage'>
+                        <img src="./blasting-software.png" width={500} height={500} alt="RockTech" />
+                    </div>
+                )}
             </div>
-        </Router>
+        </div>
     );
 }
 

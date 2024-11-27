@@ -21,7 +21,7 @@ function RockData() {
     };
 
     return (
-        <div>
+        <div className='rock-data'>
             <h2>Get Rock Data by ID</h2>
             <input
                 type="text"
@@ -33,13 +33,15 @@ function RockData() {
             {data && (
                 <div>
                     <h3>Data for ID: {rockId}</h3>
-                    <ul>
-                        {Object.entries(data).map(([key, value]) => (
-                            <li key={key}>
+                    <div className='wholeDiv'>
+                       {Object.entries(data).map(([key, value]) =>                 
+                            key !== '_id' ? (
+                                <div key={key} className='smallDiv'>
                                 <strong>{key}:</strong> {value}
-                            </li>
-                        ))}
-                    </ul>
+                            </div>
+                            ) : null
+                    )}
+                    </div>
                 </div>
             )}
         </div>

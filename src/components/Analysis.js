@@ -38,7 +38,7 @@ const modelImages = [
 
 const Analysis = () => {
   return (
-    <div>
+    <div className='analyze'>
       <h1>Model Analysis - Prediction vs Actual</h1>
       {modelImages.map((modelData, index) => (
         <div key={index}>

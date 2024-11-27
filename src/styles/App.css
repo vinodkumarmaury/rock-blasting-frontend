@@ -3,14 +3,34 @@ body {
   font-family: Arial, sans-serif;
   margin: 0;
   padding: 0;
-  background-color: #f4f4f9;
+  /* background-color: #f4f4f9; */
 }
 
-.container {
-  max-width: 600px;
+.mainDiv{
+  display: flex;
+  height: 100vh;
   margin: 0 auto;
   padding: 20px;
-  background-color: #fff;
+  box-shadow: 0 4px 10px rgba(0, 0, 0, 0.1);
+  border-radius: 8px;
+  text-align: center;
+}
+.blastImage{
+  margin-top: 60px;
+  width: 50%;
+  height: 100%;
+  background-size: cover;
+  background-position: center;
+  background-attachment: fixed;
+  border-radius: 8px 0 0 8px;
+}
+.predict{
+ background-color: white;
+}
+.container {
+  margin: 0 auto;
+  padding: 20px;
+  /* background-color: #fff; */
   box-shadow: 0 4px 10px rgba(0, 0, 0, 0.1);
   border-radius: 8px;
   text-align: center;
@@ -38,10 +58,12 @@ h4 {
 /* Form Styling */
 .form {
   display: flex;
-  flex-direction: column;
+  flex-wrap: wrap;
+  justify-content: space-between;
 }
 
 .form-group {
+  margin-left: 10px;
   margin-bottom: 15px;
   text-align: left;
 }
