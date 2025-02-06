@@ -1,5 +1,5 @@
 import React, { useState } from 'react';
-import { BrowserRouter as Router, Route, Routes, Link, useLocation } from 'react-router-dom';
+import { BrowserRouter as Router, Route, Routes, useLocation } from 'react-router-dom';
 import axios from 'axios';
 import './styles/App.css';
 import './styles/Navbar.css';
@@ -7,6 +7,11 @@ import InputGuide from './components/InputGuide';
 import Analysis from './components/Analysis';
 import Home from './components/Home';
 import RockData from './components/RockData.js';
+import AuthPage from './components/Auth.js';
+import ForgotPasswordPage from './components/ForgotPasswordPage';
+import Settings from './components/Settings';
+import Profile from './components/Profile';
+import Navbar from './components/Navbar';
 
 function App() {
     const [formData, setFormData] = useState({
@@ -16,7 +21,7 @@ function App() {
         ucs: "",
         elastic_modulus: "",
         fracture_frequency: "",
-        hole_diameter: "",
+        hole_diameter: "", 
         charge_length: "",
         stemming_length: "",
         blast_pattern_spacing: "",
@@ -40,7 +45,7 @@ function App() {
     const handleSubmit = async (e) => {
         e.preventDefault();
         try {
-            const response = await axios.post("https://rock-blasting-backend.onrender.com/predict", formData);
+            const response = await axios.post(`${process.env.REACT_APP_API_BASE_URL}/predict`, formData);
             setResult(response.data.predictions);
         } catch (error) {
             console.error("Error fetching prediction:", error);
@@ -59,13 +64,7 @@ function AppContent({ handleChange, handleSubmit, formData, result }) {
 
     return (
         <div>
-            <nav className="navbar">
-                <Link to="/">Home</Link>
-                <Link to="/input-guide">Input Guide</Link>
-                <Link to="/analysis">Analysis</Link>
-                <Link to="/prediction">Prediction</Link>
-                <Link to="/rock-data">Rock Data</Link>
-            </nav>
+            <Navbar />
             <div className="mainDiv">
                 <div className="container">
                     <Routes>
@@ -114,6 +113,10 @@ function AppContent({ handleChange, handleSubmit, formData, result }) {
                         <Route path="/input-guide" element={<InputGuide />} />
                         <Route path="/analysis" element={<Analysis />} />
                         <Route path="/rock-data" element={<RockData />} />
+                        <Route path="/auth" element={<AuthPage />} />
+                        <Route path="/forgot-password" element={<ForgotPasswordPage />} />
+                        <Route path="/settings" element={<Settings />} />
+                        <Route path="/profile" element={<Profile />} />
                         <Route path="/" element={<Home />} />
                     </Routes>
                 </div>
