@@ -1,58 +1,113 @@
+@import './variables.css';
+
 .guide-container {
+  max-width: 1200px;
+  margin: 40px auto;
+  padding: 40px;
+  background: var(--bg-light);
+  border-radius: 20px;
+  box-shadow: 0 8px 32px rgba(0, 0, 0, 0.1);
+  animation: fadeIn var(--transition-normal);
+}
+
+.guide-header {
+  text-align: center;
+  margin-bottom: 40px;
+}
+
+.guide-header h1 {
+  color: var(--primary-dark);
+  font-size: 2.5em;
+  margin-bottom: 20px;
+  animation: slideDown var(--transition-normal);
+}
+
+.guide-header p {
+  color: var(--text-muted);
+  font-size: 1.1em;
+  max-width: 800px;
+  margin: 0 auto;
+}
+
+.parameters-grid {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(300px, 1fr));
+  gap: 30px;
+  margin-top: 40px;
+}
+
+.parameter-card {
+  background: white;
+  padding: 25px;
+  border-radius: 15px;
+  box-shadow: 0 4px 15px rgba(0, 0, 0, 0.05);
+  transition: all var(--transition-fast);
+  animation: fadeIn var(--transition-normal);
+}
+
+.parameter-card:hover {
+  transform: translateY(-5px);
+  box-shadow: 0 8px 25px rgba(0, 0, 0, 0.1);
+}
+
+.parameter-name {
+  color: var(--primary);
+  font-size: 1.2em;
+  font-weight: bold;
+  margin-bottom: 15px;
+  display: flex;
+  align-items: center;
+  gap: 10px;
+}
+
+.parameter-description {
+  color: var(--text-dark);
+  margin-bottom: 15px;
+  line-height: 1.6;
+}
+
+.input-type {
+  color: var(--text-muted);
+  font-size: 0.9em;
+  padding: 8px 12px;
+  background: var(--bg-light);
+  border-radius: 8px;
+  display: inline-block;
+}
+
+/* Animations */
+@keyframes slideDown {
+  from {
+    opacity: 0;
+    transform: translateY(-30px);
+  }
+  to {
+    opacity: 1;
+    transform: translateY(0);
+  }
+}
+
+@keyframes fadeIn {
+  from {
+    opacity: 0;
+  }
+  to {
+    opacity: 1;
+  }
+}
+
+/* Responsive Design */
+@media (max-width: 768px) {
+  .guide-container {
+    margin: 20px;
     padding: 20px;
-    max-width: 800px;
-    margin: auto;
-    text-align: left;
-    background-color: #f9f9f9; /* Light background for better readability */
-    border: 1px solid #ddd;   /* Subtle border for a defined container */
-    border-radius: 8px;       /* Rounded corners for a modern look */
-    box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1); /* Slight shadow for depth */
-}
+  }
 
-.guide-container h2 {
-    text-align: center;
-    margin-bottom: 20px;
-    font-size: 1.8em;         /* Larger font for the title */
-    color: #333;             /* Darker color for better contrast */
-}
+  .guide-header h1 {
+    font-size: 2em;
+  }
 
-.guide-container p {
-    font-size: 1.1em;        /* Slightly larger paragraph text */
-    color: #555;             /* Neutral color for readability */
-    margin-bottom: 15px;     /* Spacing below the intro paragraph */
-}
-
-.guide-container ul {
-    font-size: 1.2em;        /* Clear and readable font size */
-    line-height: 1.8;        /* Increased line height for readability */
-    padding-left: 20px;      /* Indentation for the list */
-    color: #444;             /* Subtle color for the list text */
-}
-
-.guide-container li {
-    margin-bottom: 15px;     /* Spacing between list items */
-}
-
-.guide-container li strong {
-    color: #222;             /* Bold and slightly darker text for parameter names */
-}
-
-.guide-container li em {
-    font-style: italic;
-    color: #666;             /* Subtle color for input type hints */
-}
-
-@media (max-width: 600px) {
-    .guide-container {
-        padding: 15px;       /* Adjust padding for smaller screens */
-        font-size: 1em;      /* Reduce font size for better fit */
-    }
-
-    .guide-container h2 {
-        font-size: 1.5em;    /* Adjust title size for small screens */
-    }
-
-    .guide-container ul {
-        font-size: 1em;      /* Adjust list font size for better readability */
-    }
+  .parameters-grid {
+    grid-template-columns: 1fr;
+  }
 }

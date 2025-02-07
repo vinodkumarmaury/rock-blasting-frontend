@@ -1,46 +1,102 @@
+@import './variables.css';
+
 .settings-container {
-    max-width: 600px;
-    margin: 0 auto;
-    padding: 20px;
-    background-color: #f9f9f9;
-    border-radius: 8px;
-    box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1);
+  max-width: 800px;
+  margin: 40px auto;
+  padding: 30px;
+  background: white;
+  border-radius: 20px;
+  box-shadow: 0 8px 30px rgba(0, 0, 0, 0.1);
+  animation: slideUp var(--transition-normal);
+}
+
+.settings-header {
+  text-align: center;
+  margin-bottom: 40px;
+}
+
+.settings-header h2 {
+  color: var(--primary-dark);
+  font-size: 2em;
+  margin-bottom: 10px;
 }
 
 .settings-form {
-    display: flex;
-    flex-direction: column;
-    gap: 15px;
+  display: grid;
+  gap: 25px;
 }
 
 .form-group {
-    display: flex;
-    flex-direction: column;
+  position: relative;
 }
 
 .form-group label {
-    font-weight: bold;
-    margin-bottom: 5px;
+  display: block;
+  margin-bottom: 8px;
+  color: var(--text-dark);
+  font-weight: 500;
 }
 
 .form-group input,
 .form-group textarea {
-    padding: 10px;
-    border: 1px solid #ccc;
-    border-radius: 5px;
+  width: 100%;
+  padding: 12px;
+  border: 2px solid var(--bg-light);
+  border-radius: 10px;
+  font-size: 1em;
+  transition: all var(--transition-fast);
 }
 
-button {
-    padding: 10px 15px;
-    background-color: #007bff;
-    color: white;
-    border: none;
-    border-radius: 5px;
-    cursor: pointer;
-    font-weight: bold;
-    transition: background-color 0.3s ease;
+.form-group input:focus,
+.form-group textarea:focus {
+  border-color: var(--primary);
+  box-shadow: 0 0 0 3px rgba(63, 81, 181, 0.1);
+  outline: none;
 }
 
-button:hover {
-    background-color: #0056b3;
+.save-button {
+  background: var(--primary);
+  color: white;
+  padding: 15px;
+  border: none;
+  border-radius: 10px;
+  font-size: 1.1em;
+  font-weight: 500;
+  cursor: pointer;
+  transition: all var(--transition-fast);
+  margin-top: 20px;
+}
+
+.save-button:hover {
+  background: var(--primary-dark);
+  transform: translateY(-2px);
+  box-shadow: 0 5px 15px rgba(0, 0, 0, 0.2);
+}
+
+.save-button:active {
+  transform: translateY(0);
+}
+
+.message {
+  padding: 15px;
+  border-radius: 10px;
+  margin-bottom: 20px;
+  animation: fadeIn var(--transition-fast);
+}
+
+.success {
+  background: var(--success);
+  color: white;
+}
+
+.error {
+  background: var(--error);
+  color: white;
+}
+
+@media (max-width: 768px) {
+  .settings-container {
+    margin: 20px;
+    padding: 20px;
+  }
 }

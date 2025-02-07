@@ -1,3 +1,5 @@
+@import './variables.css';
+
 body {
     font-family: 'Arial', sans-serif;
     background-color: #f4f4f9;
@@ -6,10 +8,9 @@ body {
     padding: 0;
 }
 .analyze{
-    background-color: #ecf0f1;
-    padding: 20px;
-    max-width: 800px;
-    margin: auto;
+    min-height: 100vh;
+    padding: 40px;
+    background: var(--bg-light);
 }
 .analysis-container {
     padding: 20px;
@@ -56,4 +57,94 @@ body {
 
 .model-section li::marker {
     color: #2980b9;
+}
+
+.analysis-header {
+  text-align: center;
+  margin-bottom: 50px;
+  animation: fadeInDown var(--transition-normal);
+}
+
+.analysis-header h1 {
+  color: var(--primary-dark);
+  font-size: 2.5em;
+  margin-bottom: 20px;
+  position: relative;
+}
+
+.analysis-header h1::after {
+  content: '';
+  position: absolute;
+  bottom: -10px;
+  left: 50%;
+  transform: translateX(-50%);
+  width: 100px;
+  height: 4px;
+  background: var(--accent);
+  border-radius: 2px;
+}
+
+.analysis-grid {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(500px, 1fr));
+  gap: 30px;
+  padding: 20px;
+}
+
+.analysis-card {
+  background: white;
+  border-radius: 20px;
+  padding: 25px;
+  box-shadow: 0 8px 30px rgba(0, 0, 0, 0.1);
+  transition: all var(--transition-fast);
+  animation: fadeIn var(--transition-normal);
+}
+
+.analysis-card:hover {
+  transform: translateY(-5px);
+  box-shadow: 0 12px 40px rgba(0, 0, 0, 0.15);
+}
+
+.analysis-card h2 {
+  color: var(--primary);
+  font-size: 1.5em;
+  margin-bottom: 20px;
+  padding-bottom: 10px;
+  border-bottom: 2px solid var(--primary-light);
+}
+
+.analysis-card img {
+  width: 100%;
+  height: auto;
+  border-radius: 10px;
+  transition: transform var(--transition-fast);
+}
+
+.analysis-card:hover img {
+  transform: scale(1.02);
+}
+
+@keyframes fadeInDown {
+  from {
+    opacity: 0;
+    transform: translateY(-30px);
+  }
+  to {
+    opacity: 1;
+    transform: translateY(0);
+  }
+}
+
+@media (max-width: 768px) {
+  .analyze {
+    padding: 20px;
+  }
+  
+  .analysis-grid {
+    grid-template-columns: 1fr;
+  }
+  
+  .analysis-card {
+    padding: 15px;
+  }
 }
