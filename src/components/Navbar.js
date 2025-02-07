@@ -1,32 +1,48 @@
-import { Link } from "react-router-dom";
-import { useState, useEffect } from "react";
-import { FaUserCircle } from "react-icons/fa"; // Import a user icon from react-icons
+import React, { useState, useEffect } from "react";
+import { Link, useNavigate, useLocation } from "react-router-dom";
+import { 
+  FaUserCircle, 
+  FaBars, 
+  FaHome, 
+  FaBook, 
+  FaChartLine, 
+  FaChartBar, 
+  FaSignInAlt,
+  FaCog,
+  FaUser,
+  FaSignOutAlt
+} from "react-icons/fa";
 import axios from "axios";
-import { useNavigate } from 'react-router-dom';
+import "../styles/Navbar.css";
 
 const Navbar = () => {
   const [dropdownOpen, setDropdownOpen] = useState(false);
-  const [username, setUsername] = useState('');
+  const [isExpanded, setIsExpanded] = useState(false);
+  const [username, setUsername] = useState("");
   const navigate = useNavigate();
+  const location = useLocation();
 
   useEffect(() => {
     const fetchUsername = async () => {
       try {
-        const token = localStorage.getItem('token');
+        const token = localStorage.getItem("token");
         if (!token) {
-          throw new Error('No token found');
+          throw new Error("No token found");
         }
-        const response = await axios.get(`${process.env.REACT_APP_API_BASE_URL}/profile`, {
-          headers: {
-            Authorization: `Bearer ${token}`
+        const response = await axios.get(
+          `${process.env.REACT_APP_API_BASE_URL}/profile`,
+          {
+            headers: {
+              Authorization: `Bearer ${token}`,
+            },
           }
-        });
+        );
         setUsername(response.data.username);
       } catch (error) {
-        console.error('Error fetching username:', error);
+        console.error("Error fetching username:", error);
         if (error.response && error.response.status === 401) {
-          localStorage.removeItem('token');
-          navigate('/auth');
+          localStorage.removeItem("token");
+          navigate("/auth");
         }
       }
     };
@@ -36,36 +52,86 @@ const Navbar = () => {
 
   const handleLogout = () => {
     localStorage.removeItem("token");
-    window.location.href = "/auth";
+    setDropdownOpen(false);
+    navigate("/auth");
   };
 
-  const toggleDropdown = () => {
+  const toggleDropdown = (e) => {
+    e.stopPropagation();
     setDropdownOpen(!dropdownOpen);
   };
 
+  const toggleNavbar = () => {
+    setIsExpanded(!isExpanded);
+  };
+
+  // Close dropdown when clicking outside
+  useEffect(() => {
+    const handleClickOutside = () => {
+      setDropdownOpen(false);
+    };
+
+    document.addEventListener("click", handleClickOutside);
+    return () => {
+      document.removeEventListener("click", handleClickOutside);
+    };
+  }, []);
+
+  // Close mobile menu when route changes
+  useEffect(() => {
+    setIsExpanded(false);
+  }, [location]);
+
+  const NavLink = ({ to, icon: Icon, text }) => (
+    <Link to={to} className={location.pathname === to ? "active" : ""}>
+      <Icon className="nav-icon" />
+      <span className="nav-link-text">{text}</span>
+    </Link>
+  );
+
   return (
-    <nav className="navbar">
-      <Link to="/">Home</Link>
-      <Link to="/input-guide">Input Guide</Link>
-      <Link to="/prediction">Prediction</Link>
-      <Link to="/analysis">Analysis</Link>
-      
-      {localStorage.getItem("token") ? (
-        <div className="profile-menu">
-          <FaUserCircle className="profile-icon" onClick={toggleDropdown} />
-          <span className="username">{username}</span>
-          {dropdownOpen && (
-            <div className="dropdown-menu">
-              <Link to="/profile">Profile</Link>
-              <Link to="/settings">Settings</Link>
-              <button onClick={handleLogout}>Logout</button>
-            </div>
-          )}
+    <>
+      <div className="hamburger-menu" onClick={toggleNavbar}>
+        <FaBars />
+      </div>
+      <nav className={`navbar ${isExpanded ? "expanded" : ""}`}>
+        <div className="nav-links">
+          <NavLink to="/" icon={FaHome} text="Home" />
+          <NavLink to="/input-guide" icon={FaBook} text="Input Guide" />
+          <NavLink to="/prediction" icon={FaChartLine} text="Prediction" />
+          <NavLink to="/analysis" icon={FaChartBar} text="Analysis" />
         </div>
-      ) : (
-        <Link to="/auth">Login</Link>
-      )}
-    </nav>
+
+        {localStorage.getItem("token") ? (
+          <div className="profile-menu" onClick={(e) => e.stopPropagation()}>
+            <div className="profile-header" onClick={toggleDropdown}>
+              <FaUserCircle className="profile-icon" />
+              <span className="nav-link-text username">{username}</span>
+            </div>
+            {dropdownOpen && (
+              <div className="dropdown-menu">
+                <Link to="/profile">
+                  <FaUser />
+                  <span>Profile</span>
+                </Link>
+                <Link to="/settings">
+                  <FaCog />
+                  <span>Settings</span>
+                </Link>
+                <button onClick={handleLogout}>
+                  <FaSignOutAlt />
+                  <span>Logout</span>
+                </button>
+              </div>
+            )}
+          </div>
+        ) : (
+          <div className="login-container">
+            <NavLink to="/auth" icon={FaSignInAlt} text="Login" />
+          </div>
+        )}
+      </nav>
+    </>
   );
 };
 

@@ -1,66 +1,181 @@
 .navbar {
     display: flex;
-    justify-content: center;
-    gap: 20px;
-    background-color: #007bff;
-    padding: 15px;
+    flex-direction: column;
+    position: fixed;
+    left: 0;
+    top: 0;
+    height: 100vh;
+    width: 60px;
+    padding: 20px 0;
+    background: linear-gradient(90deg, #007bff, #0056b3);
     box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1);
-    border-radius: 8px;
+    transition: width 0.3s ease;
+    z-index: 1000;
+}
+
+.navbar:hover,
+.navbar.expanded {
+    width: 200px;
+}
+
+.nav-links {
+    display: flex;
+    flex-direction: column;
+    flex: 1;
 }
 
 .navbar a {
+    display: flex;
+    align-items: center;
     color: white;
     text-decoration: none;
-    font-weight: bold;
-    padding: 10px 15px;
+    padding: 12px 15px;
+    margin: 5px 10px;
     border-radius: 5px;
-    transition: background-color 0.3s ease;
+    transition: background-color 0.3s ease, transform 0.2s ease;
+    white-space: nowrap;
+}
+
+.nav-icon {
+    font-size: 20px;
+    min-width: 30px;
+}
+
+.nav-link-text {
+    opacity: 0;
+    transition: opacity 0.3s ease;
+    margin-left: 10px;
+}
+
+.navbar:hover .nav-link-text,
+.navbar.expanded .nav-link-text {
+    opacity: 1;
 }
 
 .navbar a:hover {
-    background-color: #0056b3;
+    background-color: rgba(255, 255, 255, 0.1);
+    transform: translateX(5px);
 }
 
 .navbar a.active {
-    background-color: #0056b3;
+    background-color: rgba(255, 255, 255, 0.2);
 }
 
 .profile-menu {
+    margin-top: auto;
+    padding: 10px;
     position: relative;
+    margin-bottom: 20px;
+}
+
+.profile-header {
+    display: flex;
+    align-items: center;
+    cursor: pointer;
+    padding: 5px;
+    border-radius: 5px;
+    color: white;
+    gap: 10px;
 }
 
 .profile-icon {
-    color: white;
     font-size: 24px;
-    cursor: pointer;
+    min-width: 30px;
+}
+
+.username {
+    display: flex;
+    align-items: center;
+    gap: 8px;
+    opacity: 0;
+    transition: opacity 0.3s ease;
+}
+
+.navbar:hover .username,
+.navbar.expanded .username {
+    opacity: 1;
+}
+
+.profile-header .nav-link-text {
+    margin-left: 0;
 }
 
 .dropdown-menu {
     position: absolute;
-    top: 40px;
+    bottom: 100%;
+    left: 0;
     right: 0;
+    margin: 10px;
     background-color: white;
-    box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1);
     border-radius: 8px;
+    box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1);
     overflow: hidden;
-    z-index: 1000;
 }
 
 .dropdown-menu a,
 .dropdown-menu button {
-    display: block;
+    display: flex;
+    align-items: center;
+    width: 100%;
     padding: 10px 15px;
-    color: #007bff;
+    color: #333;
     text-decoration: none;
-    font-weight: bold;
     border: none;
     background: none;
     cursor: pointer;
-    width: 100%;
-    text-align: left;
+    transition: background-color 0.3s ease;
 }
 
 .dropdown-menu a:hover,
 .dropdown-menu button:hover {
-    background-color: #f1f1f1;
+    background-color: #f5f5f5;
+    transform: none;
+}
+
+.dropdown-menu svg {
+    margin-right: 10px;
+    font-size: 16px;
+    color: #007bff;
+}
+
+.hamburger-menu {
+    display: none;
+    position: fixed;
+    top: 20px;
+    left: 20px;
+    z-index: 1001;
+    cursor: pointer;
+    color: white;
+    background-color: #007bff;
+    padding: 10px;
+    border-radius: 5px;
+    box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
+}
+
+.login-container {
+    margin-top: auto;
+    margin-bottom: 20px;
+}
+
+.login-container a {
+    margin-bottom: 0;
+}
+
+@media (max-width: 768px) {
+    .navbar {
+        transform: translateX(-100%);
+        width: 200px;
+    }
+
+    .navbar.expanded {
+        transform: translateX(0);
+    }
+
+    .nav-link-text {
+        opacity: 1;
+    }
+
+    .hamburger-menu {
+        display: block;
+    }
 }
