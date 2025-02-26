@@ -56,6 +56,7 @@ const Navbar = () => {
 
   const handleLogout = () => {
     localStorage.removeItem("token");
+    localStorage.removeItem("userData"); // Also remove userData when logging out
     setDropdownOpen(false);
     navigate("/auth");
   };

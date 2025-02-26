@@ -16,21 +16,36 @@ const Profile = () => {
   const { showNotification } = useNotification();
 
   useEffect(() => {
-    // Fetch current user data
+    // First load data from localStorage if available
+    const cachedUserData = JSON.parse(localStorage.getItem('userData'));
+    if (cachedUserData) {
+      setUsername(cachedUserData.username || '');
+      setEmail(cachedUserData.email || '');
+      setFirstName(cachedUserData.firstName || '');
+      setLastName(cachedUserData.lastName || '');
+      setBio(cachedUserData.bio || '');
+    }
+
+    // Then fetch current user data from server
     const fetchUserData = async () => {
       try {
         const userData = await authService.getUserProfile();
         
+        // Update state with fetched data
         setUsername(userData.username);
         setEmail(userData.email);
         setFirstName(userData.firstName || '');
         setLastName(userData.lastName || '');
         setBio(userData.bio || '');
+        
+        // Store in localStorage for persistence
+        localStorage.setItem('userData', JSON.stringify(userData));
       } catch (error) {
         console.error('Error fetching user data:', error);
         if (error.message.includes('token') || 
             (error.response && error.response.status === 401)) {
           localStorage.removeItem('token');
+          localStorage.removeItem('userData'); // Clear cached user data on auth failure
           navigate('/auth');
         }
       }
@@ -51,6 +66,16 @@ const Profile = () => {
       };
       
       const updatedProfile = await authService.updateProfile(profileData);
+      
+      // Update localStorage with new data
+      const userData = {
+        username,
+        email,
+        firstName,
+        lastName,
+        bio
+      };
+      localStorage.setItem('userData', JSON.stringify(userData));
       
       showNotification('Profile updated successfully', 'success');
       console.log('Profile updated:', updatedProfile);
