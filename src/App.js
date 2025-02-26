@@ -12,6 +12,7 @@ import ForgotPasswordPage from './components/ForgotPasswordPage';
 import Settings from './components/Settings';
 import Profile from './components/Profile';
 import Navbar from './components/Navbar';
+import { NotificationProvider } from './context/NotificationContext';
 
 function App() {
     const [formData, setFormData] = useState({
@@ -45,16 +46,33 @@ function App() {
     const handleSubmit = async (e) => {
         e.preventDefault();
         try {
-            const response = await axios.post(`${process.env.REACT_APP_API_BASE_URL}/predict`, formData);
+            const token = localStorage.getItem('token');
+            if (!token) {
+                console.error("No authentication token found");
+                return;
+            }
+
+            const response = await axios.post(
+                `${process.env.REACT_APP_API_BASE_URL}/api/predict`, 
+                formData,
+                {
+                    headers: {
+                        'Authorization': `Bearer ${token}`
+                    }
+                }
+            );
             setResult(response.data.predictions);
         } catch (error) {
             console.error("Error fetching prediction:", error);
         }
     };
+    
 
     return (
         <Router>
-            <AppContent handleChange={handleChange} handleSubmit={handleSubmit} formData={formData} result={result} />
+            <NotificationProvider>
+                <AppContent handleChange={handleChange} handleSubmit={handleSubmit} formData={formData} result={result} />
+            </NotificationProvider>
         </Router>
     );
 }

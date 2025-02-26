@@ -54,14 +54,13 @@ const Value = styled.p`
 `;
 
 const PredictionResults = ({ results }) => {
+  const models = ['SVR', 'XGBoost', 'Random Forest'];
   const parameters = [
     { key: 'Fragmentation_Size', label: 'Fragmentation Size', unit: 'cm' },
     { key: 'Vibration_Level', label: 'Vibration Level', unit: 'dB' },
     { key: 'Noise_Level', label: 'Noise Level', unit: 'dB' },
-    { key: 'Powder_Factor', label: 'Powder Factor', unit: '' }
+    { key: 'Powder_Factor', label: 'Powder Factor', unit: '' },
   ];
-
-  const models = ['SVR', 'XGBoost', 'Random Forest'];
 
   return (
     <ResultsContainer>
@@ -74,21 +73,16 @@ const PredictionResults = ({ results }) => {
               <ModelResult key={`${param.key}-${model}`}>
                 <ModelName>{model}</ModelName>
                 <Value>
-                  {results[`${param.key} (${param.unit})`.trim()][
-                    models.indexOf(model)
-                  ].toFixed(2)}
+                  {results.predictions[`${param.key} (${param.unit}`.trim()][model].toFixed(2)}
                   {param.unit && ` ${param.unit}`}
                 </Value>
               </ModelResult>
             ))}
             <ModelChart
               title={param.label}
-              actualData={[]} // You'll need to provide actual data if available
+              actualData={[]}
               predictedData={models.map(
-                model =>
-                  results[`${param.key} (${param.unit})`.trim()][
-                    models.indexOf(model)
-                  ]
+                model => results.predictions[`${param.key} (${param.unit}`.trim()][model]
               )}
             />
           </ResultCard>

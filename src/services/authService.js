@@ -1,119 +1,67 @@
 import axios from 'axios';
 
-const API_URL = process.env.REACT_APP_API_BASE_URL;
+// Always hardcode the base URL to avoid any environment variable issues
+const BASE_URL = 'http://localhost:8000';
 
-class AuthService {
-  async login(email, password) {
+const authService = {
+  getUserProfile: async () => {
     try {
-      const response = await axios.post(`${API_URL}/api/signin`, {
-        email,
-        password
-      });
-      if (response.data.access_token) {
-        localStorage.setItem('token', response.data.access_token);
-        await this.fetchUserProfile();
+      const token = localStorage.getItem('token');
+      if (!token) {
+        throw new Error('No token found');
       }
+      
+      // Always use the /api/ prefix
+      const response = await axios.get(`${BASE_URL}/api/profile`, {
+        headers: {
+          Authorization: `Bearer ${token}`
+        }
+      });
+      
       return response.data;
     } catch (error) {
-      throw this.handleError(error);
+      console.error('Error fetching user profile:', error);
+      throw new Error('Failed to load profile');
     }
-  }
-
-  async register(username, email, password) {
+  },
+  
+  updateProfile: async (profileData) => {
     try {
-      const response = await axios.post(`${API_URL}/api/signup`, {
-        username,
-        email,
-        password
-      });
-      if (response.data.access_token) {
-        localStorage.setItem('token', response.data.access_token);
-        await this.fetchUserProfile();
+      const token = localStorage.getItem('token');
+      if (!token) {
+        throw new Error('No token found');
       }
-      return response.data;
-    } catch (error) {
-      throw this.handleError(error);
-    }
-  }
-
-  async fetchUserProfile() {
-    try {
-      const response = await axios.get(`${API_URL}/api/profile`, {
-        headers: this.getAuthHeader()
+      
+      // First get the current user data to include email
+      const userData = await authService.getUserProfile();
+      
+      // Create complete profile data with all required fields
+      const completeProfileData = {
+        // Include the email from current profile data
+        email: userData.email,
+        // Include password field (use a placeholder if not changing password)
+        password: profileData.password || "unchanged_password_placeholder",
+        // Include the rest of the profile data
+        username: profileData.username,
+        firstName: profileData.firstName || "",
+        lastName: profileData.lastName || "",
+        bio: profileData.bio || ""
+      };
+      
+      console.log('Sending profile update:', completeProfileData);
+      
+      const response = await axios.put(`${BASE_URL}/api/update-profile`, completeProfileData, {
+        headers: {
+          Authorization: `Bearer ${token}`
+        }
       });
-      localStorage.setItem('user', JSON.stringify(response.data));
+      
       return response.data;
     } catch (error) {
-      throw this.handleError(error);
+      console.error('Error updating profile:', error);
+      throw new Error('Failed to update profile');
     }
   }
+};
 
-  async forgotPassword(email) {
-    try {
-      const response = await axios.post(`${API_URL}/api/forgot-password`, {
-        email
-      });
-      return response.data;
-    } catch (error) {
-      throw this.handleError(error);
-    }
-  }
-
-  async resetPassword(token, newPassword) {
-    try {
-      const response = await axios.post(`${API_URL}/api/reset-password`, {
-        token,
-        new_password: newPassword
-      });
-      return response.data;
-    } catch (error) {
-      throw this.handleError(error);
-    }
-  }
-
-  async updateProfile(userData) {
-    try {
-      const response = await axios.put(
-        `${API_URL}/api/update-profile`,
-        userData,
-        { headers: this.getAuthHeader() }
-      );
-      await this.fetchUserProfile(); // Refresh user data
-      return response.data;
-    } catch (error) {
-      throw this.handleError(error);
-    }
-  }
-
-  logout() {
-    localStorage.removeItem('token');
-    localStorage.removeItem('user');
-    window.location.href = '/auth';
-  }
-
-  getCurrentUser() {
-    const user = localStorage.getItem('user');
-    return user ? JSON.parse(user) : null;
-  }
-
-  isAuthenticated() {
-    return !!localStorage.getItem('token');
-  }
-
-  getAuthHeader() {
-    const token = localStorage.getItem('token');
-    return token ? { Authorization: `Bearer ${token}` } : {};
-  }
-
-  handleError(error) {
-    if (error.response) {
-      if (error.response.status === 401) {
-        this.logout();
-      }
-      throw new Error(error.response.data.detail || 'An error occurred');
-    }
-    throw new Error('Network error');
-  }
-}
-
-export default new AuthService();
+export default authService;

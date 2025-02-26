@@ -38,20 +38,6 @@ const Label = styled.label`
   font-weight: 500;
 `;
 
-const Input = styled.input`
-  width: 100%;
-  padding: 0.75rem;
-  border: 2px solid ${props => props.error ? theme.error.main : theme.text.disabled};
-  border-radius: 8px;
-  transition: all 0.3s ease;
-
-  &:focus {
-    outline: none;
-    border-color: ${theme.primary.main};
-    box-shadow: 0 0 0 3px ${theme.primary.light}30;
-  }
-`;
-
 const Toggle = styled.label`
   display: flex;
   align-items: center;
@@ -82,18 +68,11 @@ const ToggleSwitch = styled.div`
   }
 `;
 
-const ErrorText = styled.span`
-  color: ${theme.error.main};
-  font-size: 0.85rem;
-  margin-top: 0.5rem;
-  display: block;
-`;
-
 const UserSettings = () => {
   const api = useApi();
   const { showNotification } = useNotification();
   
-  const { values, errors, handleChange, handleSubmit } = useForm({
+  const { values, handleChange, handleSubmit } = useForm({
     emailNotifications: true,
     pushNotifications: false,
     language: 'en',

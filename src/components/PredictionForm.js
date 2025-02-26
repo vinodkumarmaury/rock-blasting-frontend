@@ -1,9 +1,11 @@
 import React, { useState } from 'react';
 import styled from 'styled-components';
+import axios from 'axios';
 import { theme } from '../theme/colors';
 import Button from './common/Button';
 import { useNotification } from '../context/NotificationContext';
 import LoadingSpinner from './common/LoadingSpinner';
+import { buildApiUrl } from '../utils/apiUtils';
 
 const FormContainer = styled.div`
   background: ${theme.background.paper};
@@ -58,62 +60,92 @@ const ButtonContainer = styled.div`
   margin-top: 1rem;
 `;
 
-const PredictionForm = () => {
+// Add prop for onPredictionComplete
+const PredictionForm = ({ onPredictionComplete }) => {
   const { showNotification } = useNotification();
   const [loading, setLoading] = useState(false);
   const [formData, setFormData] = useState({
-    rock_type: '',
-    ucs: '',
-    penetration_rate: '',
-    hole_diameter: '',
-    hole_depth: '',
-    burden: '',
-    spacing: '',
-    stemming: '',
-    explosive_weight: ''
+    'UCS (MPa)': 80, // Exact column name match
+    'Penetration_Rate (m/min)': 0.5,
+    'Hole_Diameter (mm)': 110,
+    'Burden (m)': 3,
+    'Spacing (m)': 3.5,
+    'Stemming_Length (m)': 2.4,
+    'Rock_Elastic_Modulus (GPa)': 60,
+    'Fracture_Frequency (/m)': 1.2,
+    'Groundwater_Level (m)': 1.8,
+    'Explosive_Weight (kg)': 80
   });
   const [errors, setErrors] = useState({});
 
   const validateForm = () => {
     const newErrors = {};
+    let valid = true;
+    
+    // Validate each field
     Object.entries(formData).forEach(([key, value]) => {
-      if (!value) {
-        newErrors[key] = 'This field is required';
-      } else if (key !== 'rock_type' && isNaN(value)) {
-        newErrors[key] = 'Must be a number';
+      if (value === '' || value === null || isNaN(value)) {
+        newErrors[key] = 'Field is required and must be a number';
+        valid = false;
       }
     });
+    
     setErrors(newErrors);
-    return Object.keys(newErrors).length === 0;
+    return valid;
   };
 
   const handleSubmit = async (e) => {
     e.preventDefault();
     if (!validateForm()) {
-      showNotification('Please fix the errors in the form', 'error');
-      return;
+        showNotification('Please fix the errors in the form', 'error');
+        return;
     }
 
     setLoading(true);
     try {
-      const response = await fetch(`${process.env.REACT_APP_API_BASE_URL}/api/predict`, {
-        method: 'POST',
-        headers: {
-          'Content-Type': 'application/json',
-          'Authorization': `Bearer ${localStorage.getItem('token')}`
-        },
-        body: JSON.stringify(formData)
-      });
+        const token = localStorage.getItem('token');
+        
+        if (!token) {
+            throw new Error('No token found');
+        }
 
-      if (!response.ok) throw new Error('Prediction failed');
-
-      const data = await response.json();
-      showNotification('Prediction successful!', 'success');
-      // Handle the prediction results (you can pass them to a parent component or use context)
+        // Log data before sending for debugging
+        console.log("Sending prediction data:", formData);
+        
+        const requestURL = buildApiUrl('predict');
+        
+        const response = await axios.post(
+            requestURL, 
+            formData,
+            {
+                headers: {
+                    'Content-Type': 'application/json',
+                    'Authorization': `Bearer ${token}`
+                }
+            }
+        );
+        
+        console.log('Prediction successful:', response.data);
+        showNotification('Prediction completed successfully', 'success');
+        
+        if (onPredictionComplete && typeof onPredictionComplete === 'function') {
+            onPredictionComplete(response.data);
+        }
+        
     } catch (error) {
-      showNotification(error.message, 'error');
+        console.error('Error fetching prediction:', error);
+        console.error('Error response:', error.response?.data);
+        
+        if (error.response && error.response.status === 401) {
+            showNotification('Session expired. Please login again.', 'error');
+        } else {
+            showNotification(
+                error.response?.data?.detail || 'Error fetching prediction', 
+                'error'
+            );
+        }
     } finally {
-      setLoading(false);
+        setLoading(false);
     }
   };
 
@@ -121,54 +153,152 @@ const PredictionForm = () => {
     const { name, value } = e.target;
     setFormData(prev => ({
       ...prev,
-      [name]: value
+      [name]: parseFloat(value) || value
     }));
     // Clear error when user starts typing
     if (errors[name]) {
       setErrors(prev => ({
         ...prev,
-        [name]: ''
+        [name]: null
       }));
     }
   };
-
-  const formFields = [
-    { name: 'rock_type', label: 'Rock Type', type: 'text' },
-    { name: 'ucs', label: 'UCS (MPa)', type: 'number' },
-    { name: 'penetration_rate', label: 'Penetration Rate (m/min)', type: 'number' },
-    { name: 'hole_diameter', label: 'Hole Diameter (mm)', type: 'number' },
-    { name: 'hole_depth', label: 'Hole Depth (m)', type: 'number' },
-    { name: 'burden', label: 'Burden (m)', type: 'number' },
-    { name: 'spacing', label: 'Spacing (m)', type: 'number' },
-    { name: 'stemming', label: 'Stemming (m)', type: 'number' },
-    { name: 'explosive_weight', label: 'Explosive Weight (kg)', type: 'number' }
-  ];
 
   if (loading) return <LoadingSpinner text="Processing prediction..." />;
 
   return (
     <FormContainer>
+      <h2>Rock Blasting Parameters</h2>
       <FormGrid onSubmit={handleSubmit}>
-        {formFields.map(field => (
-          <FormGroup key={field.name}>
-            <Label>{field.label}</Label>
-            <Input
-              type={field.type}
-              name={field.name}
-              value={formData[field.name]}
-              onChange={handleChange}
-              error={errors[field.name]}
-              step="any"
-            />
-            {errors[field.name] && <ErrorText>{errors[field.name]}</ErrorText>}
-          </FormGroup>
-        ))}
+        <FormGroup>
+          <Label htmlFor="ucs">UCS (MPa)</Label>
+          <Input
+            type="number"
+            id="ucs"
+            name="UCS (MPa)"
+            value={formData['UCS (MPa)']}
+            onChange={handleChange}
+            error={!!errors['UCS (MPa)']}
+          />
+          {errors['UCS (MPa)'] && <ErrorText>{errors['UCS (MPa)']}</ErrorText>}
+        </FormGroup>
+
+        <FormGroup>
+          <Label htmlFor="penetrationRate">Penetration Rate (m/min)</Label>
+          <Input
+            type="number"
+            id="penetrationRate"
+            name="Penetration_Rate (m/min)"
+            value={formData['Penetration_Rate (m/min)']}
+            onChange={handleChange}
+            error={!!errors['Penetration_Rate (m/min)']}
+          />
+          {errors['Penetration_Rate (m/min)'] && <ErrorText>{errors['Penetration_Rate (m/min)']}</ErrorText>}
+        </FormGroup>
+
+        <FormGroup>
+          <Label htmlFor="holeDiameter">Hole Diameter (mm)</Label>
+          <Input
+            type="number"
+            id="holeDiameter"
+            name="Hole_Diameter (mm)"
+            value={formData['Hole_Diameter (mm)']}
+            onChange={handleChange}
+            error={!!errors['Hole_Diameter (mm)']}
+          />
+          {errors['Hole_Diameter (mm)'] && <ErrorText>{errors['Hole_Diameter (mm)']}</ErrorText>}
+        </FormGroup>
+
+        <FormGroup>
+          <Label htmlFor="burden">Burden (m)</Label>
+          <Input
+            type="number"
+            id="burden"
+            name="Burden (m)"
+            value={formData['Burden (m)']}
+            onChange={handleChange}
+            error={!!errors['Burden (m)']}
+          />
+        </FormGroup>
+
+        <FormGroup>
+          <Label htmlFor="spacing">Spacing (m)</Label>
+          <Input
+            type="number"
+            id="spacing"
+            name="Spacing (m)"
+            value={formData['Spacing (m)']}
+            onChange={handleChange}
+            error={!!errors['Spacing (m)']}
+          />
+        </FormGroup>
+
+        <FormGroup>
+          <Label htmlFor="stemmingLength">Stemming Length (m)</Label>
+          <Input
+            type="number"
+            id="stemmingLength" 
+            name="Stemming_Length (m)"
+            value={formData['Stemming_Length (m)']}
+            onChange={handleChange}
+            error={!!errors['Stemming_Length (m)']}
+          />
+        </FormGroup>
+
+        <FormGroup>
+          <Label htmlFor="elasticModulus">Rock Elastic Modulus (GPa)</Label>
+          <Input
+            type="number"
+            id="elasticModulus"
+            name="Rock_Elastic_Modulus (GPa)"
+            value={formData['Rock_Elastic_Modulus (GPa)']}
+            onChange={handleChange}
+            error={!!errors['Rock_Elastic_Modulus (GPa)']}
+          />
+        </FormGroup>
+
+        <FormGroup>
+          <Label htmlFor="fractureFrequency">Fracture Frequency (/m)</Label>
+          <Input
+            type="number"
+            id="fractureFrequency"
+            name="Fracture_Frequency (/m)"
+            value={formData['Fracture_Frequency (/m)']}
+            onChange={handleChange}
+            error={!!errors['Fracture_Frequency (/m)']}
+          />
+        </FormGroup>
+
+        <FormGroup>
+          <Label htmlFor="groundwaterLevel">Groundwater Level (m)</Label>
+          <Input
+            type="number"
+            id="groundwaterLevel"
+            name="Groundwater_Level (m)"
+            value={formData['Groundwater_Level (m)']}
+            onChange={handleChange}
+            error={!!errors['Groundwater_Level (m)']}
+          />
+        </FormGroup>
+
+        <FormGroup>
+          <Label htmlFor="explosiveWeight">Explosive Weight (kg)</Label>
+          <Input
+            type="number"
+            id="explosiveWeight"
+            name="Explosive_Weight (kg)"
+            value={formData['Explosive_Weight (kg)']}
+            onChange={handleChange}
+            error={!!errors['Explosive_Weight (kg)']}
+          />
+        </FormGroup>
+
         <ButtonContainer>
           <Button type="button" variant="outline" onClick={() => setFormData({})}>
             Reset
           </Button>
-          <Button type="submit">
-            Predict
+          <Button type="submit" disabled={loading}>
+            {loading ? <LoadingSpinner /> : 'Submit Prediction'}
           </Button>
         </ButtonContainer>
       </FormGrid>

@@ -1,100 +1,67 @@
 import React, { useState, useEffect } from 'react';
-import axios from 'axios';
-import '../styles/Settings.css';
 import { useNavigate } from 'react-router-dom';
+import authService from '../services/authService';
+import { useNotification } from '../context/NotificationContext';
+import '../styles/Settings.css';
 
 const Settings = () => {
-  const [username, setUsername] = useState('');
-  const [email, setEmail] = useState('');
+  const [userData, setUserData] = useState({});
   const [password, setPassword] = useState('');
-  const [firstName, setFirstName] = useState('');
-  const [lastName, setLastName] = useState('');
-  const [bio, setBio] = useState('');
-  const [message, setMessage] = useState('');
   const navigate = useNavigate();
-
+  const { showNotification } = useNotification();
+  
   useEffect(() => {
-    // Fetch current user data
     const fetchUserData = async () => {
       try {
-        const token = localStorage.getItem('token');
-        if (!token) {
-          throw new Error('No token found');
-        }
-        const response = await axios.get(`${process.env.REACT_APP_API_BASE_URL}/profile`, {
-          headers: {
-            Authorization: `Bearer ${token}`
-          }
-        });
-        setUsername(response.data.username);
-        setEmail(response.data.email);
-        setFirstName(response.data.firstName || ''); // Corrected key
-        setLastName(response.data.lastName || ''); // Corrected key
-        setBio(response.data.bio || '');
+        // Use authService instead of direct axios call
+        const data = await authService.getUserProfile();
+        setUserData(data);
       } catch (error) {
         console.error('Error fetching user data:', error);
-        if (error.response && error.response.status === 401) {
+        if (error.message.includes('token') || 
+            (error.response && error.response.status === 401)) {
           localStorage.removeItem('token');
           navigate('/auth');
-        } else {
-          setMessage('Error fetching user data');
         }
       }
     };
-
+    
     fetchUserData();
   }, [navigate]);
 
-
-
-  const handleSave = async () => {
-    console.log('Settings : ',firstName,lastName,bio)
+  const handleSave = async (e) => {
+    e.preventDefault();
     try {
-      const token = localStorage.getItem('token');
-      if (!token) {
-        throw new Error('No token found');
-      }
-      const response = await axios.put(`${process.env.REACT_APP_API_BASE_URL}/update-profile`, {
-        username,
-        email,
-        password,
-        firstName, // Corrected key
-        lastName, // Corrected key
-        bio
-      }, {
-        headers: {
-          Authorization: `Bearer ${token}`
-        }
-      });
-      setMessage(response.data.message);
-      console.log('Settings : ',response.data.message)
+      // Change updateUserProfile to updateProfile
+      const updatedSettings = await authService.updateProfile(userData);
+      
+      showNotification('Settings updated successfully', 'success');
+      console.log('Settings updated:', updatedSettings);
     } catch (error) {
-      console.error('Error updating profile:', error);
-      setMessage('Error updating profile');
+      console.error('Error updating settings:', error);
+      showNotification('Failed to update settings', 'error');
     }
   };
-
-
   
   return (
     <div className="settings-container">
       <h2>Settings</h2>
-      {message && <p>{message}</p>}
+      {/* Form submission status will be shown through notifications */}
       <form className="settings-form">
         <div className="form-group">
           <label>Username:</label>
           <input
             type="text"
-            value={username}
-            onChange={(e) => setUsername(e.target.value)}
+            value={userData.username || ''}
+            onChange={(e) => setUserData({ ...userData, username: e.target.value })}
           />
         </div>
         <div className="form-group">
           <label>Email:</label>
           <input
             type="email"
-            value={email}
-            onChange={(e) => setEmail(e.target.value)}
+            value={userData.email || ''}
+            onChange={(e) => setUserData({ ...userData, email: e.target.value })}
           />
         </div>
         <div className="form-group">
@@ -109,23 +76,23 @@ const Settings = () => {
           <label>First Name:</label>
           <input
             type="text"
-            value={firstName}
-            onChange={(e) => setFirstName(e.target.value)}
+            value={userData.firstName || ''}
+            onChange={(e) => setUserData({ ...userData, firstName: e.target.value })}
           />
         </div>
         <div className="form-group">
           <label>Last Name:</label>
           <input
             type="text"
-            value={lastName}
-            onChange={(e) => setLastName(e.target.value)}
+            value={userData.lastName || ''}
+            onChange={(e) => setUserData({ ...userData, lastName: e.target.value })}
           />
         </div>
         <div className="form-group">
           <label>Bio:</label>
           <textarea
-            value={bio}
-            onChange={(e) => setBio(e.target.value)}
+            value={userData.bio || ''}
+            onChange={(e) => setUserData({ ...userData, bio: e.target.value })}
           />
         </div>
         <button type="button" onClick={handleSave}>

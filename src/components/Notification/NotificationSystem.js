@@ -1,4 +1,4 @@
-import React, { useState, useEffect } from 'react';
+import React from 'react';
 import styled, { keyframes, css } from 'styled-components';
 import { theme } from '../../theme/colors';
 
@@ -123,46 +123,7 @@ const getIcon = (type) => {
   }
 };
 
-const NotificationSystem = () => {
-  const [notifications, setNotifications] = useState([]);
-
-  const addNotification = (notification) => {
-    const id = Date.now();
-    setNotifications(prev => [...prev, { ...notification, id, progress: 1 }]);
-  };
-
-  const removeNotification = (id) => {
-    setNotifications(prev =>
-      prev.map(notif =>
-        notif.id === id ? { ...notif, isExiting: true } : notif
-      )
-    );
-    setTimeout(() => {
-      setNotifications(prev => prev.filter(notif => notif.id !== id));
-    }, 300);
-  };
-
-  useEffect(() => {
-    const interval = setInterval(() => {
-      setNotifications(prev =>
-        prev.map(notif => ({
-          ...notif,
-          progress: Math.max(0, notif.progress - 0.01)
-        }))
-      );
-    }, 50);
-
-    return () => clearInterval(interval);
-  }, []);
-
-  useEffect(() => {
-    notifications.forEach(notif => {
-      if (notif.progress <= 0) {
-        removeNotification(notif.id);
-      }
-    });
-  }, [notifications]);
-
+const NotificationSystem = ({ notifications, removeNotification }) => {
   return (
     <NotificationContainer>
       {notifications.map(({ id, type, title, message, progress, isExiting }) => (

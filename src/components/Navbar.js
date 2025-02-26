@@ -12,7 +12,7 @@ import {
   FaUser,
   FaSignOutAlt
 } from "react-icons/fa";
-import axios from "axios";
+import authService from "../services/authService";  // Import the service
 import "../styles/Navbar.css";
 
 const Navbar = () => {
@@ -27,19 +27,23 @@ const Navbar = () => {
       try {
         const token = localStorage.getItem("token");
         if (!token) {
-          throw new Error("No token found");
+          // No need to show error if no token - just means user isn't logged in
+          return;
         }
-        const response = await axios.get(
-          `${process.env.REACT_APP_API_BASE_URL}/profile`,
-          {
-            headers: {
-              Authorization: `Bearer ${token}`,
-            },
-          }
-        );
-        setUsername(response.data.username);
+        
+        // Use the authService instead of direct axios call
+        const userData = await authService.getUserProfile();
+        
+        // Check if the username exists in the response
+        if (userData.username) {
+          setUsername(userData.username);
+        } else if (userData.email) {
+          // If no username but email is present, use that instead
+          setUsername(userData.email.split('@')[0]);
+        }
       } catch (error) {
         console.error("Error fetching username:", error);
+        
         if (error.response && error.response.status === 401) {
           localStorage.removeItem("token");
           navigate("/auth");
@@ -57,7 +61,7 @@ const Navbar = () => {
   };
 
   const toggleDropdown = (e) => {
-    e.stopPropagation();
+    e.preventDefault();
     setDropdownOpen(!dropdownOpen);
   };
 

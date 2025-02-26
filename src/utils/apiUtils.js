@@ -2,7 +2,7 @@
 import axios from 'axios';
 import { useNotification } from '../context/NotificationContext';
 
-const API_BASE_URL = process.env.REACT_APP_API_BASE_URL;
+const API_BASE_URL = 'http://localhost:8000';
 
 // Create axios instance with default config
 const api = axios.create({
@@ -152,6 +152,50 @@ export const endpoints = {
   preferences: {
     get: '/preferences',
     update: '/preferences'
+  }
+};
+
+/**
+ * Builds a proper API URL ensuring no duplicate /api/ paths
+ */
+export const buildApiUrl = (endpoint) => {
+  // Clean the endpoint by removing any leading slashes
+  const cleanEndpoint = endpoint.replace(/^\/+/, '');
+  
+  // Always use a consistent format
+  return `${API_BASE_URL}/api/${cleanEndpoint}`;
+};
+
+/**
+ * Makes an API call with authentication
+ */
+export const callApi = async (method, endpoint, data = null) => {
+  const token = localStorage.getItem('token');
+  if (!token) {
+    throw new Error('No authentication token found');
+  }
+  
+  const url = buildApiUrl(endpoint);
+  console.log(`Making ${method} request to: ${url}`);
+  
+  const config = {
+    method,
+    url,
+    headers: {
+      'Content-Type': 'application/json',
+      'Authorization': `Bearer ${token}`
+    }
+  };
+  
+  if (data) {
+    config.data = data;
+  }
+  
+  try {
+    return await axios(config);
+  } catch (error) {
+    console.error(`Error in ${method} request to ${url}:`, error);
+    throw error;
   }
 };
 
